@@ -12,7 +12,8 @@ public class CreatePolygonMesh : MonoBehaviour {
 
   //
   int count = 0;
-  
+  public bool mousePointed = false;
+
   public GameObject cube;
 
   void Start () {
@@ -56,16 +57,7 @@ public class CreatePolygonMesh : MonoBehaviour {
   // Update is called once per frame
   void Update () {
     
-    if(Input.GetMouseButtonDown(0))
-      {
-	Vector3 pos = Input.mousePosition;
-	pos.z = 10.0f;
-	Vector3 newpos = Camera.main.ScreenToWorldPoint(pos);
-	cube.transform.position = newpos;
-	
-      }
 
-        
     //点をウニョウニョ動かす
     float k = 0.001f;
     for(int i=0;i<newVertices.Count;i++)
@@ -76,27 +68,42 @@ public class CreatePolygonMesh : MonoBehaviour {
 	newVertices[i] = temp;
       }
     
-    //動かすかどうか
-    if(count<10)
+  
+    if(Input.GetMouseButtonDown(0))
       {
-
+	Vector3 pos = Input.mousePosition;
+	//Debug.Log(pos);
+	pos.z = 300.0f;
+        
+	Vector3 newpos = Camera.main.ScreenToWorldPoint(pos);
+	Debug.Log(newpos);
+	cube.transform.position = newpos;
+	mousePointed = true;
 
 	int pathcount = path.Count-1;
-	path.Add(path[pathcount] + new Vector3(1.0f, 0.0f, 0.0f));
+	Vector3 delta_vertices = path[pathcount] - newpos;//new Vector3(1.0f, 0.0f, 0.0f);
+	path.Add(newpos);
     
 	//点の設定
-	Vector3 delta_vertices = new Vector3(1.0f, 0.0f, 0.0f);
+
 	int vertcount = newVertices.Count-1;
-	Debug.Log("vertices" + vertcount);
+	//Debug.Log("vertices" + vertcount);
+
+	/*
 	newVertices.Add(newVertices[vertcount-4] + delta_vertices);
 	newVertices.Add(newVertices[vertcount-3] + delta_vertices);
 	newVertices.Add(newVertices[vertcount-2] + delta_vertices);
 	newVertices.Add(newVertices[vertcount-1] + delta_vertices);
 	newVertices.Add(newVertices[vertcount] + delta_vertices);
+	*/
+
+	newVertices.Add(new Vector3(0.0f, 0.0f, 1.0f) + newpos);
+	newVertices.Add(new Vector3(0.0f, 1.0f, 0.0f) + newpos);
+	newVertices.Add(new Vector3(0.0f, 0.8f, -1.0f) + newpos);
+	newVertices.Add(new Vector3(0.0f, -0.8f, -1.0f) + newpos);
+	newVertices.Add(new Vector3(0.0f, -1.0f, 0.0f) + newpos);
 
 
-
-    
 	//UV
 	newUV.Add(new Vector2(0.0f, 0.0f));
 	newUV.Add(new Vector2(0.0f, 1.0f));
@@ -106,7 +113,7 @@ public class CreatePolygonMesh : MonoBehaviour {
 
 	//Triangles
 	int tricount = newTriangles.Count-1;
-	Debug.Log("triangle"+tricount);
+	//Debug.Log("triangle"+tricount);
 	//前2点，後1点
 	newTriangles.Add(vertcount-4);newTriangles.Add(vertcount+1);newTriangles.Add(vertcount-3);
 	newTriangles.Add(vertcount-3);newTriangles.Add(vertcount+2);newTriangles.Add(vertcount-2);
@@ -120,8 +127,6 @@ public class CreatePolygonMesh : MonoBehaviour {
 	newTriangles.Add(vertcount+3);newTriangles.Add(vertcount+4);newTriangles.Add(vertcount-1);
 	newTriangles.Add(vertcount+4);newTriangles.Add(vertcount+5);newTriangles.Add(vertcount);
 	newTriangles.Add(vertcount+5);newTriangles.Add(vertcount+1);newTriangles.Add(vertcount-4);
-
-
       }
     count++;
 
