@@ -10,25 +10,40 @@ public class CreatePolygonMesh : MonoBehaviour {
   List<Vector2> newUV = new List<Vector2>();
   List<int> newTriangles = new List<int>();
 
+  //vectors
+  Vector3[] basevec = new Vector3[5];
+
   //
   int count = 0;
   public bool mousePointed = false;
 
-  public GameObject cube;
+  //
+  public GameObject RightHand;
+  private Vector3 newpos;
+  public float delta_distance;
+
+  //timer
+  private float timer;
+  private float waitingTime=0.01f;
+
 
   void Start () {
-    mesh = new Mesh();
-
-    
+    mesh = new Mesh();    
     //初期path
     path.Add(new Vector3(0.0f, 0.0f, 0.0f));
     
     //点の設定
-    newVertices.Add(new Vector3(0.0f, 0.0f, 1.0f));
-    newVertices.Add(new Vector3(0.0f, 1.0f, 0.0f));
-    newVertices.Add(new Vector3(0.0f, 0.8f, -1.0f));
-    newVertices.Add(new Vector3(0.0f, -0.8f, -1.0f));
-    newVertices.Add(new Vector3(0.0f, -1.0f, 0.0f));
+    basevec[0] = new Vector3(0.0f, 0.0f, 1.0f);
+    basevec[1] = new Vector3(0.0f, 1.0f, 0.0f);
+    basevec[2] = new Vector3(0.0f, 0.8f, -1.0f);
+    basevec[3] = new Vector3(0.0f, -0.8f, -1.0f);
+    basevec[4] = new Vector3(0.0f, -0.8f, -1.0f);
+    
+
+    for(int i=0;i<5;i++)
+      {
+	newVertices.Add(basevec[i]);
+      }
 
     //UV
     newUV.Add(new Vector2(0.0f, 0.0f));
@@ -41,7 +56,7 @@ public class CreatePolygonMesh : MonoBehaviour {
     newTriangles.Add(1);newTriangles.Add(2);newTriangles.Add(0);
     newTriangles.Add(2);newTriangles.Add(3);newTriangles.Add(0);
     newTriangles.Add(3);newTriangles.Add(4);newTriangles.Add(0);
-
+    
 
     mesh.vertices = newVertices.ToArray();
     mesh.uv = newUV.ToArray();
@@ -68,41 +83,34 @@ public class CreatePolygonMesh : MonoBehaviour {
 	newVertices[i] = temp;
       }
     
-  
-    if(Input.GetMouseButtonDown(0))
-      {
-	Vector3 pos = Input.mousePosition;
-	//Debug.Log(pos);
-	pos.z = 300.0f;
-        
-	Vector3 newpos = Camera.main.ScreenToWorldPoint(pos);
-	Debug.Log(newpos);
-	cube.transform.position = newpos;
-	mousePointed = true;
+    delta_distance = 0.0f;
+    
 
+    timer += Time.deltaTime;
+    if(timer>waitingTime)
+      {
+	//アクティブでない場合
+	if(!RightHand.activeSelf)
+	  {
+	    return;
+	  }
+
+	//アクティブな場合
+	timer = 0;
+	delta_distance = Vector3.Distance(newpos, RightHand.transform.position);
+	//Debug.Log(delta_distance);
+	
+        newpos = Vector3.Lerp(newpos,RightHand.transform.position,0.1f);
 	int pathcount = path.Count-1;
-	Vector3 delta_vertices = path[pathcount] - newpos;//new Vector3(1.0f, 0.0f, 0.0f);
 	path.Add(newpos);
     
 	//点の設定
 
 	int vertcount = newVertices.Count-1;
-	//Debug.Log("vertices" + vertcount);
-
-	/*
-	newVertices.Add(newVertices[vertcount-4] + delta_vertices);
-	newVertices.Add(newVertices[vertcount-3] + delta_vertices);
-	newVertices.Add(newVertices[vertcount-2] + delta_vertices);
-	newVertices.Add(newVertices[vertcount-1] + delta_vertices);
-	newVertices.Add(newVertices[vertcount] + delta_vertices);
-	*/
-
-	newVertices.Add(new Vector3(0.0f, 0.0f, 1.0f) + newpos);
-	newVertices.Add(new Vector3(0.0f, 1.0f, 0.0f) + newpos);
-	newVertices.Add(new Vector3(0.0f, 0.8f, -1.0f) + newpos);
-	newVertices.Add(new Vector3(0.0f, -0.8f, -1.0f) + newpos);
-	newVertices.Add(new Vector3(0.0f, -1.0f, 0.0f) + newpos);
-
+	for(int i=0;i<5;i++)
+	  {
+	    newVertices.Add(0.1f*basevec[i] + newpos);
+	  }
 
 	//UV
 	newUV.Add(new Vector2(0.0f, 0.0f));
